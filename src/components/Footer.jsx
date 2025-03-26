@@ -66,7 +66,7 @@ const Footer = () => {
         marginTop: '0.5rem',
         fontSize: '0.9rem'
       }}>
-        © ScaleUp. Tous droits réservés.
+        © ScaleUp. droits réservés.
       </p>
     </footer>
   )
