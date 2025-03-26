@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/ScaleUp/static/css/main.87f7a291.css",
+    "main.js": "/ScaleUp/static/js/main.c5a1ec1b.js",
+    "index.html": "/ScaleUp/index.html",
+    "main.87f7a291.css.map": "/ScaleUp/static/css/main.87f7a291.css.map",
+    "main.c5a1ec1b.js.map": "/ScaleUp/static/js/main.c5a1ec1b.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.87f7a291.css",
+    "static/js/main.c5a1ec1b.js"
+  ]
+}
