@@ -9,6 +9,8 @@ import Meetings from './pages/Meetings';
 import Livrables from './pages/Livrables';
 import Tasks from './pages/Tasks';
 import Particu from './pages/page';
+import Analystic from './pages/analystics';
+import Ressource from './pages/Ressources';
 
 
 
@@ -35,6 +37,9 @@ function App() {
           <Route path="/meetings" element={<Meetings />} />
           <Route path="/livrable" element={<Livrables />} />
           <Route path="/tasks" element={<Tasks />} />
+          <Route path="/analystics" element={<Analystic />} />
+          <Route path="/Ressource" element={<Ressource/>} />
+        
         </Route> 
         
       </Routes>

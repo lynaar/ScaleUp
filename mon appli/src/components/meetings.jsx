@@ -13,10 +13,10 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 
 const MeetingsPage = () => {
-  const [activeTab, setActiveTab] = useState('upcoming');
+  const [activePhase, setActivePhase] = useState(1);
   const [showNewMeetingModal, setShowNewMeetingModal] = useState(false);
   const [selectedMeeting, setSelectedMeeting] = useState(null);
-    const [sidebarActive, setSidebarActive] = useState(false);
+  const [sidebarActive, setSidebarActive] = useState(false);
   const [newMeeting, setNewMeeting] = useState({
     title: '',
     date: '',
@@ -25,28 +25,69 @@ const MeetingsPage = () => {
     participants: []
   });
 
-  const meetings = [
-    {
-      id: 1,
-      type: "Équipe",
-      title: "PFE",
-      date: "2025-05-20",
-      time: "14:00",
-      duration: 90,
-      participants: ["Lyna", "Aya", "merieme"],
-      canJoin: true
-    },
-    {
-      id: 2,
-      type: "khdma",
-      title: "backend",
-      date: "2025-05-22",
-      time: "10:30",
-      duration: 120,
-      participants: ["lyna", "aya"],
-      canJoin: true
-    }
-  ];
+  // Réunions organisées par phase
+  const meetings = {
+    1: [
+      {
+        id: 1,
+        type: "",
+        title: "Lancement du projet",
+        date: "2025-05-10",
+        time: "09:00",
+        duration: 60,
+        participants: ["Lyna", "Aya", "Merieme"],
+        canJoin: true
+      },
+      {
+        id: 2,
+        type: "",
+        title: "Présentation initiale",
+        date: "2025-05-15",
+        time: "14:30",
+        duration: 90,
+        participants: ["Lyna", "Client"],
+        canJoin: true
+      }
+    ],
+    2: [
+      {
+        id: 3,
+        type: "",
+        title: "Revue technique",
+        date: "2025-06-05",
+        time: "11:00",
+        duration: 120,
+        participants: ["Lyna", "Aya", "Tech Lead"],
+        canJoin: true
+      }
+    ],
+    3: [
+      {
+        id: 4,
+        type: "",
+        title: "Démo client",
+        date: "2025-07-20",
+        time: "10:00",
+        duration: 90,
+        participants: ["Lyna", "Client", "Aya"],
+        canJoin: false
+      }
+    ],
+    4: [
+      {
+        id: 5,
+        type: "",
+        title: "Rétrospective",
+        date: "2025-08-30",
+        time: "15:00",
+        duration: 120,
+        participants: ["Toute l'équipe"],
+        canJoin: true
+      }
+    ]
+  };
+
+  const currentMeetings = meetings[activePhase];
 
   const formatDate = (dateString) => {
     const options = { weekday: 'long', day: 'numeric', month: 'long' };
@@ -68,7 +109,7 @@ const MeetingsPage = () => {
 
   const handleCreateMeeting = (e) => {
     e.preventDefault();
-    // Ici vous ajouteriez la logique pour créer la réunion
+    // Logique pour créer la réunion
     setShowNewMeetingModal(false);
     setNewMeeting({
       title: '',
@@ -77,6 +118,10 @@ const MeetingsPage = () => {
       duration: '60',
       participants: []
     });
+  };
+
+  const handlePhaseChange = (phase) => {
+    setActivePhase(phase);
   };
 
   return (
@@ -94,110 +139,227 @@ const MeetingsPage = () => {
         {/* Header */}
         <header className="meetings-header">
           <div>
-            <h1>Mes Réunions</h1>
-            <p className="subtitle">Vos prochaines sessions de collaboration</p>
+            <h1>Réunions - Phase {activePhase}</h1>
+            <p className="subtitle">Vos sessions de collaboration par phase</p>
           </div>
-         
+        
         </header>
 
-        {/* Tabs Section */}
-        <section className="tabs-section">
-          <div className="tabs">
-            <motion.button
-              className={`tab ${activeTab === 'upcoming' ? 'active' : ''}`}
-              onClick={() => setActiveTab('upcoming')}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              À venir
-            </motion.button>
-            <motion.button
-              className={`tab ${activeTab === 'past' ? 'active' : ''}`}
-              onClick={() => setActiveTab('past')}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Passées
-            </motion.button>
+        {/* Phases Navigation */}
+        <section className="phases-section">
+          <div className="phases-tabs">
+            {[1, 2, 3, 4].map((phase) => (
+              <motion.button
+                key={phase}
+                className={`phase-tab ${activePhase === phase ? 'active' : ''}`}
+                onClick={() => handlePhaseChange(phase)}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Phase {phase}
+              </motion.button>
+            ))}
           </div>
         </section>
 
         {/* Meetings List */}
         <section className="meetings-list">
           <AnimatePresence>
-            {meetings.map(meeting => (
-              <motion.div
-                key={meeting.id}
-                className="meeting-card"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.3 }}
-                whileHover={{ y: -5 }}
-              >
-                <div className="card-header">
-                  <span className={`meeting-type ${meeting.type.toLowerCase()}`}>
-                    {meeting.type}
-                  </span>
-                  <div className="card-actions">
-                    <button className="icon-btn">
-                      <FaBell />
-                    </button>
-                    <button className="icon-btn">
-                      <FaEllipsisV />
-                    </button>
-                  </div>
-                </div>
-                
-                <h3 className="meeting-title">{meeting.title}</h3>
-                
-                <div className="meeting-details">
-                  <div className="detail">
-                    <FaCalendarAlt className="icon" />
-                    <span>{formatDate(meeting.date)}</span>
+            {currentMeetings.length > 0 ? (
+              currentMeetings.map(meeting => (
+                <motion.div
+                  key={meeting.id}
+                  className="meeting-card"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  whileHover={{ y: -5 }}
+                >
+                  <div className="card-header">
+                  <h3 className="meeting-title">{meeting.title}</h3>
+                    
+                    <div className="card-actions">
+                      <button className="icon-btn">
+                       
+                      </button>
+                      <button className="icon-btn">
+                       
+                      </button>
+                    </div>
                   </div>
                   
-                  <div className="detail">
-                    <FaClock className="icon" />
-                    <span>{formatTimeRange(meeting.time, meeting.duration)}</span>
+                  
+                  
+                  <div className="meeting-details">
+                    <div className="detail">
+                      <FaCalendarAlt className="icon" />
+                      <span>{formatDate(meeting.date)}</span>
+                    </div>
+                    
+                    <div className="detail">
+                      <FaClock className="icon" />
+                      <span>{formatTimeRange(meeting.time, meeting.duration)}</span>
+                    </div>
+                    
+                    <div className="detail">
+                      <FaUserFriends className="icon" />
+                      <span>
+                        {meeting.participants.length} participant{meeting.participants.length > 1 ? 's' : ''} • {' '}
+                        {meeting.participants.join(', ')}
+                      </span>
+                    </div>
                   </div>
                   
-                  <div className="detail">
-                    <FaUserFriends className="icon" />
-                    <span>
-                      {meeting.participants.length} participant{meeting.participants.length > 1 ? 's' : ''} • {' '}
-                      {meeting.participants.join(', ')}
-                    </span>
+                  <div className="card-footer">
+                    <motion.button
+                      className="secondary-btn"
+                      onClick={() => setSelectedMeeting(meeting)}
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                    >
+                      Détails <FaChevronRight />
+                    </motion.button>
+                    <motion.button
+                      className="primary-btn"
+                      disabled={!meeting.canJoin}
+                      whileHover={meeting.canJoin ? { scale: 1.03, boxShadow: "0 2px 10px rgba(228, 62, 50, 0.3)" } : {}}
+                      whileTap={meeting.canJoin ? { scale: 0.97 } : {}}
+                    >
+                      <FaVideo /> {meeting.canJoin ? 'Rejoindre' : 'Indisponible'}
+                    </motion.button>
                   </div>
-                </div>
-                
-                <div className="card-footer">
-                  <motion.button
-                    className="secondary-btn"
-                    onClick={() => setSelectedMeeting(meeting)}
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.97 }}
-                  >
-                    Détails <FaChevronRight />
-                  </motion.button>
-                  <motion.button
-                    className="primary-btn"
-                    whileHover={{ scale: 1.03, boxShadow: "0 2px 10px rgba(228, 62, 50, 0.3)" }}
-                    whileTap={{ scale: 0.97 }}
-                  >
-                    <FaVideo /> Rejoindre
-                  </motion.button>
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              ))
+            ) : (
+              <div className="empty-state">
+                <p>Aucune réunion prévue pour cette phase</p>
+                <motion.button
+                  className="primary-btn"
+                  onClick={() => setShowNewMeetingModal(true)}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <FaPlus /> Planifier une réunion
+                </motion.button>
+              </div>
+            )}
           </AnimatePresence>
         </section>
       </main>
 
       {/* New Meeting Modal */}
-   
-               
-         
+      <AnimatePresence>
+        {showNewMeetingModal && (
+          <motion.div 
+            className="modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowNewMeetingModal(false)}
+          >
+            <motion.div 
+              className="modal-content"
+              initial={{ y: 50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 50, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button 
+                className="close-btn"
+                onClick={() => setShowNewMeetingModal(false)}
+              >
+                <FaTimes />
+              </button>
+              
+              <h2>Nouvelle réunion (Phase {activePhase})</h2>
+              
+              <form onSubmit={handleCreateMeeting}>
+                <div className="form-group">
+                  <label>Titre de la réunion</label>
+                  <input
+                    type="text"
+                    name="title"
+                    value={newMeeting.title}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+                
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Date</label>
+                    <input
+                      type="date"
+                      name="date"
+                      value={newMeeting.date}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Heure</label>
+                    <input
+                      type="time"
+                      name="time"
+                      value={newMeeting.time}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+                </div>
+                
+                <div className="form-group">
+                  <label>Durée (minutes)</label>
+                  <select
+                    name="duration"
+                    value={newMeeting.duration}
+                    onChange={handleInputChange}
+                  >
+                    <option value="30">30 minutes</option>
+                    <option value="60">1 heure</option>
+                    <option value="90">1 heure 30</option>
+                    <option value="120">2 heures</option>
+                  </select>
+                </div>
+                
+                <div className="form-group">
+                  <label>Participants (séparés par des virgules)</label>
+                  <input
+                    type="text"
+                    name="participants"
+                    value={newMeeting.participants.join(', ')}
+                    onChange={(e) => setNewMeeting(prev => ({
+                      ...prev,
+                      participants: e.target.value.split(',').map(p => p.trim())
+                    }))}
+                  />
+                </div>
+                
+                <div className="form-actions">
+                  <motion.button
+                    type="button"
+                    className="secondary-btn"
+                    onClick={() => setShowNewMeetingModal(false)}
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                  >
+                    Annuler
+                  </motion.button>
+                  <motion.button
+                    type="submit"
+                    className="primary-btn"
+                    whileHover={{ scale: 1.03, boxShadow: "0 2px 10px rgba(228, 62, 50, 0.3)" }}
+                    whileTap={{ scale: 0.97 }}
+                  >
+                    Créer la réunion
+                  </motion.button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Meeting Detail Modal */}
       <AnimatePresence>
@@ -228,6 +390,7 @@ const MeetingsPage = () => {
                   {selectedMeeting.type}
                 </span>
                 <h2>{selectedMeeting.title}</h2>
+                <p>Phase {activePhase}</p>
               </div>
               
               <div className="modal-body">
@@ -266,10 +429,14 @@ const MeetingsPage = () => {
                 </motion.button>
                 <motion.button
                   className="primary-btn"
-                  whileHover={{ scale: 1.03, boxShadow: "0 2px 10px rgba(228, 62, 50, 0.3)" }}
-                  whileTap={{ scale: 0.97 }}
+                  disabled={!selectedMeeting.canJoin}
+                  whileHover={selectedMeeting.canJoin ? { 
+                    scale: 1.03, 
+                    boxShadow: "0 2px 10px rgba(228, 62, 50, 0.3)" 
+                  } : {}}
+                  whileTap={selectedMeeting.canJoin ? { scale: 0.97 } : {}}
                 >
-                  <FaVideo /> Rejoindre la réunion
+                  <FaVideo /> {selectedMeeting.canJoin ? 'Rejoindre' : 'Indisponible'}
                 </motion.button>
               </div>
             </motion.div>
@@ -361,39 +528,37 @@ const MeetingsPage = () => {
           background: #c2332a;
         }
 
-        /* Tabs Section */
-        .tabs-section {
-          margin-bottom: 2rem;
+        .primary-btn:disabled {
+          background: #9ca3af;
+          cursor: not-allowed;
         }
 
-        .tabs {
+        /* Phases Navigation */
+        .phases-section {
+          margin-bottom: 1.5rem;
+        }
+
+        .phases-tabs {
           display: flex;
-          border-bottom: 1px solid #e5e7eb;
+          gap: 0.5rem;
+          overflow-x: auto;
+          padding-bottom: 0.5rem;
         }
 
-        .tab {
+        .phase-tab {
           padding: 0.75rem 1.5rem;
-          background: none;
+          background: #f3f4f6;
           border: none;
-          color: #6b7280;
+          border-radius: 6px;
           font-weight: 500;
           cursor: pointer;
-          position: relative;
-          transition: all 0.3s ease;
+          white-space: nowrap;
+          transition: all 0.3s;
         }
 
-        .tab.active {
-          color: #e43e32;
-        }
-
-        .tab.active::after {
-          content: '';
-          position: absolute;
-          bottom: -1px;
-          left: 0;
-          right: 0;
-          height: 2px;
+        .phase-tab.active {
           background: #e43e32;
+          color: white;
         }
 
         /* Meetings List */
@@ -401,6 +566,19 @@ const MeetingsPage = () => {
           display: grid;
           grid-template-columns: 1fr;
           gap: 1.5rem;
+        }
+
+        .empty-state {
+          text-align: center;
+          padding: 3rem;
+          background: white;
+          border-radius: 8px;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .empty-state p {
+          color: #6b7280;
+          margin-bottom: 1.5rem;
         }
 
         .meeting-card {
@@ -435,9 +613,24 @@ const MeetingsPage = () => {
           color: #e43e32;
         }
 
-        .meeting-type.atelier {
+        .meeting-type.client {
           background: rgba(59, 130, 246, 0.1);
           color: #3b82f6;
+        }
+
+        .meeting-type.développement {
+          background: rgba(16, 185, 129, 0.1);
+          color: #10b981;
+        }
+
+        .meeting-type.validation {
+          background: rgba(139, 92, 246, 0.1);
+          color: #8b5cf6;
+        }
+
+        .meeting-type.clôture {
+          background: rgba(245, 158, 11, 0.1);
+          color: #f59e0b;
         }
 
         .card-actions {
@@ -589,6 +782,12 @@ const MeetingsPage = () => {
 
         .modal-header h2 {
           margin-bottom: 0.5rem;
+        }
+
+        .modal-header p {
+          color: #6b7280;
+          margin: 0;
+          font-size: 0.9rem;
         }
 
         .modal-body {

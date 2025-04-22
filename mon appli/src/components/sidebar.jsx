@@ -1,14 +1,16 @@
 import React from 'react';
-import { FaHome, FaTachometerAlt, FaUsers, FaCalendarAlt, FaComments,FaBug, FaFileAlt, FaBook, FaRocket } from 'react-icons/fa';
+import { FaHome, FaTachometerAlt, FaUsers, FaCalendarAlt, FaComments,FaBug, FaFileAlt, FaBook, FaRocket ,FaChartBar } from 'react-icons/fa';
 import { Link, useLocation } from 'react-router-dom';
+
 
 const Sidebar = () => {
     const location = useLocation();
     
-    // Fonction pour déterminer si un lien est actif
+    
     const isActive = (path) => {
       return location.pathname === path;
     };
+  
   
     return (
         <>
@@ -427,78 +429,89 @@ const Sidebar = () => {
           }
                `}</style>
              
-             <div className="sidebar">
-        <div className="logo">
-          <div className="logo-icon">
-            <a href="">
-              <img 
-                src={`${process.env.PUBLIC_URL}/ScaleUp_Logo_-_Original_with_Transparent_Background_-_5000x5000.png`} 
-                className="logo" 
-                alt="ScaleUp Logo" 
-              />
-            </a>
+          <div className="sidebar">
+            <div className="logo">
+              <div className="logo-icon">
+                <a href="">
+                  <img 
+                    src={`${process.env.PUBLIC_URL}/ScaleUp_Logo_-_Original_with_Transparent_Background_-_5000x5000.png`} 
+                    className="logo" 
+                    alt="ScaleUp Logo" 
+                  />
+                </a>
+              </div>
+            </div>
+            <nav className="nav-menu">  
+              <Link 
+                className={`nav-item ${isActive('/startup') || isActive('/particulier') ? 'active' : ''}`} 
+                to={localStorage.getItem('role') === 'startup' ? '/startup' : '/particulier'}
+              >
+                <FaHome/>
+                <span>Home</span>
+              </Link>
+              
+              <Link 
+                className={`nav-item ${isActive('/dashboard') ? 'active' : ''}`} 
+                to="/dashboard"
+              >
+                <FaTachometerAlt />
+                <span>Dashboard</span>
+              </Link>
+              
+              <Link 
+                className={`nav-item ${isActive('/meetings') ? 'active' : ''}`} 
+                to="/meetings"
+              >
+                <FaCalendarAlt />
+                <span>Meeting</span>
+              </Link>
+              
+              <Link 
+                className={`nav-item ${isActive('/livrable') ? 'active' : ''}`} 
+                to="/livrable"
+              >
+                <FaFileAlt/>
+                <span>Livrable</span>
+              </Link>
+              
+              <Link 
+                className={`nav-item ${isActive('/ressource') ? 'active' : ''}`} 
+                to="/ressource"
+              >
+                <FaBook/>
+                <span>Ressource</span>
+              </Link>
+              
+              <Link 
+                className={`nav-item ${isActive('/tasks') ? 'active' : ''}`} 
+                to="/tasks"
+              >
+                <FaRocket/>
+                <span>Tasks</span>      
+              </Link>
+
+              {/* Afficher Analytics seulement pour les startups */}
+              {localStorage.getItem('role') === 'startup' && (
+                <Link 
+                  className={`nav-item ${isActive('/analystics') ? 'active' : ''}`} 
+                  to="/analystics"
+                >
+                  <FaChartBar/>
+                  <span>Analytics</span>      
+                </Link>
+              )}
+              
+              <Link 
+                className={`nav-item ${isActive('/feed') ? 'active' : ''}`} 
+                to="/feed"
+              >
+                <FaComments />
+                <span>Feeds</span>
+              </Link>
+            </nav>
           </div>
-        </div>
-        <nav className="nav-menu">  
-          <Link 
-            className={`nav-item ${isActive('/startup') ? 'active' : ''}`} 
-            to={localStorage.getItem('role') === 'startup' ? '/startup' : '/particulier'}
-          >
-            <FaHome/>
-            <span>Home</span>
-          </Link>
-          
-          <Link 
-            className={`nav-item ${isActive('/dashboard') ? 'active' : ''}`} 
-            to="/dashboard"
-          >
-            <FaTachometerAlt />
-            <span>Dashboard</span>
-          </Link>
-          
-          <Link 
-            className={`nav-item ${isActive('/meetings') ? 'active' : ''}`} 
-            to="/meetings"
-          >
-            <FaCalendarAlt />
-            <span>Meeting</span>
-          </Link>
-          
-          <Link 
-            className={`nav-item ${isActive('/feed') ? 'active' : ''}`} 
-            to="/feed"
-          >
-            <FaComments />
-            <span>Feeds</span>
-          </Link>
-          
-          <Link 
-            className={`nav-item ${isActive('/livrable') ? 'active' : ''}`} 
-            to="/livrable"
-          >
-            <FaFileAlt/>
-            <span>Livrable</span>
-          </Link>
-          
-          <Link 
-            className={`nav-item ${isActive('/ressource') ? 'active' : ''}`} 
-            to="/ressource"
-          >
-            <FaBook/>
-            <span>Ressource</span>
-          </Link>
-          
-          <Link 
-            className={`nav-item ${isActive('/tasks') ? 'active' : ''}`} 
-            to="/tasks"
-          >
-            <FaRocket/>
-            <span>Tasks</span>      
-          </Link>
-        </nav>
-      </div>
-    </>
-  );
+        </>
+    );
 };
 
 export default Sidebar;

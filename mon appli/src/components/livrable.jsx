@@ -14,35 +14,104 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 
 const DeliverablesPage = () => {
+  const [activePhase, setActivePhase] = useState(1);
   const [activeTab, setActiveTab] = useState('pending');
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
-  const [deliverables, setDeliverables] = useState([
-    {
-      id: 1,
-      name: "Business Plan",
-      type: "pdf",
-      date: "2025-05-15",
-      status: "approved",
-      size: "2.4 MB"
-    },
-    {
-      id: 2,
-      name: "Financial Projections",
-      type: "excel",
-      date: "2025-05-18",
-      status: "pending",
-      size: "1.8 MB"
-    },
-    {
-      id: 3,
-      name: "Pitch Deck",
-      type: "ppt",
-      date: "2025-05-20",
-      status: "rejected",
-      size: "5.2 MB"
-    }
-  ]);
+  
+  // Livrables par phase
+  const phaseDeliverables = {
+    1: [
+      {
+        id: 1,
+        name: "Business Plan",
+        type: "pdf",
+        date: "2025-05-15",
+        status: "approved",
+        size: "2.4 MB",
+        required: true
+      },
+      {
+        id: 2,
+        name: "Présentation Pitch",
+        type: "ppt",
+        date: "2025-05-18",
+        status: "pending",
+        size: "3.2 MB",
+        required: true
+      }
+    ],
+    2: [
+      {
+        id: 3,
+        name: "Financial Projections",
+        type: "excel",
+        date: "2025-06-01",
+        status: "pending",
+        size: "1.8 MB",
+        required: true
+      },
+      {
+        id: 4,
+        name: "Rapport MVP",
+        type: "pdf",
+        date: "",
+        status: "not-submitted",
+        size: "",
+        required: true
+      }
+    ],
+    3: [
+      {
+        id: 5,
+        name: "Rapport Mentorat",
+        type: "pdf",
+        date: "",
+        status: "not-submitted",
+        size: "",
+        required: true
+      },
+      {
+        id: 6,
+        name: "Plan Scaling",
+        type: "pdf",
+        date: "",
+        status: "not-submitted",
+        size: "",
+        required: true
+      }
+    ],
+    4: [
+      {
+        id: 7,
+        name: "Rapport Final",
+        type: "pdf",
+        date: "",
+        status: "not-submitted",
+        size: "",
+        required: true
+      },
+      {
+        id: 8,
+        name: "Présentation Résultats",
+        type: "ppt",
+        date: "",
+        status: "not-submitted",
+        size: "",
+        required: true
+      }
+    ]
+  };
+
+  // Documents requis par phase
+  const requiredDocuments = {
+    1: ["Business Plan", "Présentation Pitch", "CV Fondateurs"],
+    2: ["Financial Projections", "Rapport MVP", "Stratégie Marketing"],
+    3: ["Rapport Mentorat", "Plan Scaling", "Feedback Utilisateurs"],
+    4: ["Rapport Final", "Présentation Résultats", "Plan Futur"]
+  };
+
+  const [deliverables, setDeliverables] = useState(phaseDeliverables[1]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -65,12 +134,25 @@ const DeliverablesPage = () => {
         type: selectedFile.type,
         date: new Date().toISOString().split('T')[0],
         status: "pending",
-        size: selectedFile.size
+        size: selectedFile.size,
+        required: false
       };
-      setDeliverables([...deliverables, newDeliverable]);
+      
+      const updatedDeliverables = [...deliverables, newDeliverable];
+      setDeliverables(updatedDeliverables);
+      
+      // Mettre à jour les livrables pour la phase active
+      phaseDeliverables[activePhase] = updatedDeliverables;
+      
       setSelectedFile(null);
       setShowUploadModal(false);
     }
+  };
+
+  const handlePhaseChange = (phase) => {
+    setActivePhase(phase);
+    setDeliverables(phaseDeliverables[phase]);
+    setActiveTab('pending'); // Réinitialiser l'onglet actif
   };
 
   const getFileIcon = (type) => {
@@ -91,11 +173,13 @@ const DeliverablesPage = () => {
       case 'approved': return <FaCheckCircle className="status-icon approved" />;
       case 'pending': return <FaSpinner className="status-icon pending" />;
       case 'rejected': return <FaTimesCircle className="status-icon rejected" />;
+      case 'not-submitted': return <FaTimesCircle className="status-icon not-submitted" />;
       default: return null;
     }
   };
 
   const formatDate = (dateString) => {
+    if (!dateString) return "Non soumis";
     const options = { day: 'numeric', month: 'long', year: 'numeric' };
     return new Date(dateString).toLocaleDateString('fr-FR', options);
   };
@@ -110,7 +194,7 @@ const DeliverablesPage = () => {
         {/* Header */}
         <header className="deliverables-header">
           <div>
-            <h1>Livrables</h1>
+            <h1>Livrables - Phase {activePhase}</h1>
             <p className="subtitle">Documents à soumettre pour votre startup</p>
           </div>
           <motion.button
@@ -123,7 +207,36 @@ const DeliverablesPage = () => {
           </motion.button>
         </header>
 
-        {/* Tabs Section */}
+        {/* Phases Navigation */}
+        <section className="phases-section">
+          <div className="phases-tabs">
+            {[1, 2, 3, 4].map((phase) => (
+              <motion.button
+                key={phase}
+                className={`phase-tab ${activePhase === phase ? 'active' : ''}`}
+                onClick={() => handlePhaseChange(phase)}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Phase {phase}
+              </motion.button>
+            ))}
+          </div>
+        </section>
+
+        {/* Required Documents Section */}
+        <section className="required-docs-section">
+          <div className="required-docs-card">
+            <h2>Documents requis pour la Phase {activePhase}:</h2>
+            <ul>
+              {requiredDocuments[activePhase].map((doc, index) => (
+                <li key={index}>{doc}</li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        {/* Status Tabs Section */}
         <section className="tabs-section">
           <div className="tabs">
             <motion.button
@@ -161,7 +274,7 @@ const DeliverablesPage = () => {
               .map(deliverable => (
                 <motion.div
                   key={deliverable.id}
-                  className="deliverable-card"
+                  className={`deliverable-card ${deliverable.required ? 'required' : ''}`}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0 }}
@@ -174,7 +287,7 @@ const DeliverablesPage = () => {
                       <div>
                         <h3 className="file-name">{deliverable.name}</h3>
                         <p className="file-meta">
-                          {formatDate(deliverable.date)} • {deliverable.size}
+                          {formatDate(deliverable.date)} • {deliverable.size || 'N/A'}
                         </p>
                       </div>
                     </div>
@@ -182,23 +295,26 @@ const DeliverablesPage = () => {
                       {getStatusIcon(deliverable.status)}
                       <span className={`status-text ${deliverable.status}`}>
                         {deliverable.status === 'approved' ? 'Validé' : 
-                         deliverable.status === 'pending' ? 'En attente' : 'Rejeté'}
+                         deliverable.status === 'pending' ? 'En attente' : 
+                         deliverable.status === 'rejected' ? 'Rejeté' : 'Non soumis'}
                       </span>
                     </div>
                   </div>
                   
                   <div className="card-actions">
-                    <button className="action-btn download">
-                      Télécharger
-                    </button>
+                    {deliverable.date && (
+                      <button className="action-btn download">
+                        Télécharger
+                      </button>
+                    )}
                     {deliverable.status === 'pending' && (
                       <button className="action-btn delete">
                         <FaTrash /> Supprimer
                       </button>
                     )}
-                    {deliverable.status === 'rejected' && (
+                    {(deliverable.status === 'rejected' || deliverable.status === 'not-submitted') && (
                       <button className="action-btn resubmit">
-                        Resoumettre
+                        {deliverable.status === 'rejected' ? 'Resoumettre' : 'Soumettre'}
                       </button>
                     )}
                   </div>
@@ -232,7 +348,7 @@ const DeliverablesPage = () => {
                 &times;
               </button>
               
-              <h2>Soumettre un nouveau livrable</h2>
+              <h2>Soumettre un nouveau livrable (Phase {activePhase})</h2>
               
               <form onSubmit={handleSubmit}>
                 <div className="form-group">
@@ -294,6 +410,89 @@ const DeliverablesPage = () => {
 
       {/* CSS Styles */}
       <style jsx>{`
+       
+
+       
+        .phases-section {
+          margin-bottom: 1.5rem;
+        }
+
+        .phases-tabs {
+          display: flex;
+          gap: 0.5rem;
+          overflow-x: auto;
+          padding-bottom: 0.5rem;
+        }
+
+        .phase-tab {
+          padding: 0.75rem 1.5rem;
+          background: #f3f4f6;
+          border: none;
+          border-radius: 6px;
+          font-weight: 500;
+          cursor: pointer;
+          white-space: nowrap;
+          transition: all 0.3s;
+        }
+
+        .phase-tab.active {
+          background: #e43e32;
+          color: white;
+        }
+
+        /* Required Documents Section */
+        .required-docs-section {
+          margin-bottom: 2rem;
+        }
+
+        .required-docs-card {
+          background:rgb(241, 241, 241);
+          border-radius: 8px;
+          padding: 1.5rem;
+          border-left: 4px solid rgb(255, 8, 8);
+        }
+
+        .required-docs-card h2 {
+          margin-top: 0;
+          color: #111827;
+          font-size: 1.2rem;
+          margin-bottom: 1rem;
+        }
+
+        .required-docs-card ul {
+          margin: 0;
+          padding-left: 1.5rem;
+        }
+
+        .required-docs-card li {
+          margin-bottom: 0.5rem;
+          color: #374151;
+        }
+
+        /* Deliverable Card Styles */
+        .deliverable-card.required {
+          border-left: 4px solid rgb(255, 3, 3);
+          background-color: rgba(255, 0, 0, 0.05);
+        }
+
+        .status-icon.not-submitted {
+          color: #6b7280;
+        }
+
+        .status-text.not-submitted {
+          color: #6b7280;
+        }
+
+        @media (max-width: 768px) {
+          .phases-tabs {
+            flex-wrap: nowrap;
+          }
+          
+          .phase-tab {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+          }
+        }
         .deliverables-container {
           display: flex;
           min-height: 100vh;

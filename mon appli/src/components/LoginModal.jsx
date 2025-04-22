@@ -34,6 +34,8 @@ const LoginModal = ({ show, onClose ,switchToRegister }) => {
           navigate('/particulier');
         }
         localStorage.setItem('user', JSON.stringify(data.utilisateur));
+       
+        localStorage.setItem('role', data.utilisateur.role); // stocker le rôle de l'utilisateur
 
         // ici tu peux rediriger ou stocker les infos utilisateur
       } else {

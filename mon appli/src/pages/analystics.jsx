@@ -1,13 +1,13 @@
-// src/pages/SidebarPage.jsx
 import React from 'react';
 import Sidebar from '../components/sidebar'; 
-import Ressource from '../components/ressource';
+import Analystic from '../components/analystic'; 
 
 const SidebarPage = () => {
   return (
     <div>
       <Sidebar />
-      <Ressource/>
+      <Analystic />
+   
     </div>
   );
 }

@@ -197,5 +197,16 @@ if (newPassword.length < 6){
     console.error(err);
     res.status(500).json({ error: 'Erreur serveur' });
   }
+},
+async logout(req, res) {
+  try {
+    res.status(200).json({ 
+      success: true,
+      message: 'Déconnexion réussie' 
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erreur lors de la déconnexion' });
+  }
 }
 };

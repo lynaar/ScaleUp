@@ -104,7 +104,7 @@ const ProfileSection = ({ formData = {} }) => {
       const updatedComments = [
         ...comments,
         {
-          author: 'Utilisateur',
+          
           text: newComment.trim(),
           date: new Date().toLocaleDateString('fr-FR', { 
             day: 'numeric', 
@@ -118,7 +118,34 @@ const ProfileSection = ({ formData = {} }) => {
       setNewComment('');
     }
   };
-  
+  const navigate = useNavigate();
+
+const handleLogout = async () => {
+  try {
+    const user = JSON.parse(localStorage.getItem('user'));
+    
+    
+    const response = await fetch('http://localhost:8083/api/auth/logout', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${user?.token}`
+      }
+    });
+
+    if (response.ok) {
+      
+      localStorage.removeItem('user');
+      console.log('Déconnexion réussie');
+      navigate('/');
+    } else {
+      const errorData = await response.json();
+      console.error('Erreur lors de la déconnexion:', errorData.error);
+    }
+  } catch (err) {
+    console.error('Erreur lors de la déconnexion:', err);
+  }
+};
   return (
     <div className="profile-container">
       {/* Barre de navigation */}
@@ -143,10 +170,10 @@ const ProfileSection = ({ formData = {} }) => {
             <FaCog />
          
           </button>
-          <Link to="/Home" className="nav-link-button">
-          <FiLogOut/>
-          </Link>
-          <Link to="/profil" className="active">Mon Profil</Link>
+          
+          <FiLogOut onClick={handleLogout} style={{ cursor: 'pointer' }} />
+         
+          <Link  className="active">Mon Profil</Link>
         </div>
       </nav>
 
@@ -222,23 +249,23 @@ const ProfileSection = ({ formData = {} }) => {
               </small>
             </div>
 
-            <h2>Commentaires</h2>
+            <h2>Votre Biographie</h2>
             <div className="comments-list">
               {comments.length > 0 ? (
                 comments.map((comment, index) => (
                   <div className="comment" key={index}>
-                    <p><strong>{comment.author}:</strong> {comment.text}</p>
+                    <p><strong>{comment.author}</strong> {comment.text}</p>
                     <small>{comment.date}</small>
                   </div>
                 ))
               ) : (
-                <p>Aucun commentaire pour le moment</p>
+                <p></p>
               )}
             </div>
 
             <form className="comment-form" onSubmit={handleAddComment}>
               <textarea
-                placeholder="Ajouter un commentaire..."
+                placeholder="Ajouter..."
                 rows="3"
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}

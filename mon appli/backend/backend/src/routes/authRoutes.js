@@ -8,5 +8,5 @@ const upload = multer();
 router.post('/login', authController.login);
 router.post('/register', upload.none(), authController.register);
 router.put('/updateMotdepasse', authController.updatePassword);
-
+router.post('/logout', authController.logout)
 export default router;

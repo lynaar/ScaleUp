@@ -12,46 +12,74 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 
 const TasksPage = () => {
-  const [tasks, setTasks] = useState([
-    { id: 1, title: "Finaliser le business plan", completed: false, priority: "high", dueDate: "2025-06-10" },
-    { id: 2, title: "Préparer la présentation pour les investisseurs", completed: true, priority: "medium", dueDate: "2025-05-28" },
-    { id: 3, title: "Contacter les mentors pour feedback", completed: false, priority: "low", dueDate: "2025-06-15" },
-    { id: 4, title: "Mettre à jour le modèle financier", completed: false, priority: "high", dueDate: "2025-05-30" }
-  ]);
+  const [activePhase, setActivePhase] = useState(1);
+  const [tasks, setTasks] = useState({
+    1: [
+      { id: 1, title: "Finaliser le business plan", completed: false, priority: "high", dueDate: "2025-06-10" },
+      { id: 2, title: "Préparer la présentation pitch", completed: true, priority: "medium", dueDate: "2025-05-28" }
+    ],
+    2: [
+      { id: 3, title: "Développer le MVP", completed: false, priority: "high", dueDate: "2025-07-15" },
+      { id: 4, title: "Réaliser des tests utilisateurs", completed: false, priority: "medium", dueDate: "2025-07-20" }
+    ],
+    3: [
+      { id: 5, title: "Rencontrer les mentors", completed: false, priority: "medium", dueDate: "2025-09-01" },
+      { id: 6, title: "Affiner la stratégie de scaling", completed: false, priority: "low", dueDate: "" }
+    ],
+    4: [
+      { id: 7, title: "Préparer le rapport final", completed: false, priority: "high", dueDate: "2025-11-15" },
+      { id: 8, title: "Présenter les résultats", completed: false, priority: "high", dueDate: "2025-11-30" }
+    ]
+  });
   
   const [newTask, setNewTask] = useState("");
   const [showAddTask, setShowAddTask] = useState(false);
   const [selectedPriority, setSelectedPriority] = useState("medium");
   const [selectedDueDate, setSelectedDueDate] = useState("");
 
+  const currentTasks = tasks[activePhase];
+
   const toggleTask = (id) => {
-    setTasks(tasks.map(task => 
-      task.id === id ? { ...task, completed: !task.completed } : task
-    ));
+    setTasks(prevTasks => ({
+      ...prevTasks,
+      [activePhase]: prevTasks[activePhase].map(task => 
+        task.id === id ? { ...task, completed: !task.completed } : task
+      )
+    }));
   };
 
   const deleteTask = (id) => {
-    setTasks(tasks.filter(task => task.id !== id));
+    setTasks(prevTasks => ({
+      ...prevTasks,
+      [activePhase]: prevTasks[activePhase].filter(task => task.id !== id)
+    }));
   };
 
   const addTask = (e) => {
     e.preventDefault();
     if (newTask.trim()) {
-      setTasks([
-        ...tasks,
-        {
-          id: Date.now(),
-          title: newTask,
-          completed: false,
-          priority: selectedPriority,
-          dueDate: selectedDueDate
-        }
-      ]);
+      const newTaskObj = {
+        id: Date.now(),
+        title: newTask,
+        completed: false,
+        priority: selectedPriority,
+        dueDate: selectedDueDate
+      };
+      
+      setTasks(prevTasks => ({
+        ...prevTasks,
+        [activePhase]: [...prevTasks[activePhase], newTaskObj]
+      }));
+      
       setNewTask("");
       setSelectedPriority("medium");
       setSelectedDueDate("");
       setShowAddTask(false);
     }
+  };
+
+  const handlePhaseChange = (phase) => {
+    setActivePhase(phase);
   };
 
   const getPriorityColor = (priority) => {
@@ -78,6 +106,14 @@ const TasksPage = () => {
     return new Date(dateString).toLocaleDateString('fr-FR', options);
   };
 
+  // Tâches recommandées par phase
+  const recommendedTasks = {
+    1: ["Business Plan", "Présentation Pitch", "Étude de marché"],
+    2: ["Développement MVP", "Tests utilisateurs", "Levée de fonds"],
+    3: ["Rencontres mentors", "Stratégie scaling", "Optimisation processus"],
+    4: ["Rapport final", "Présentation résultats", "Plan futur"]
+  };
+
   return (
     <div className="tasks-container">
       {/* Mobile Menu Button */}
@@ -88,26 +124,55 @@ const TasksPage = () => {
         {/* Header */}
         <header className="tasks-header">
           <div>
-            <h1>Tâches</h1>
+            <h1>Tâches - Phase {activePhase}</h1>
             <p className="subtitle">Gérez vos actions et priorités</p>
           </div>
-         
+        
         </header>
+
+        {/* Phases Navigation */}
+        <section className="phases-section">
+          <div className="phases-tabs">
+            {[1, 2, 3, 4].map((phase) => (
+              <motion.button
+                key={phase}
+                className={`phase-tab ${activePhase === phase ? 'active' : ''}`}
+                onClick={() => handlePhaseChange(phase)}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Phase {phase}
+              </motion.button>
+            ))}
+          </div>
+        </section>
+
+        {/* Recommended Tasks */}
+        <section className="recommended-tasks">
+          <div className="recommended-card">
+            <h2>Tâches recommandées pour la Phase {activePhase}:</h2>
+            <ul>
+              {recommendedTasks[activePhase].map((task, index) => (
+                <li key={index}>{task}</li>
+              ))}
+            </ul>
+          </div>
+        </section>
 
         {/* Stats */}
         <div className="stats-grid">
           <div className="stat-card">
             <h3>Total</h3>
-            <div className="stat-value">{tasks.length}</div>
+            <div className="stat-value">{currentTasks.length}</div>
           </div>
           <div className="stat-card">
             <h3>Terminées</h3>
-            <div className="stat-value">{tasks.filter(t => t.completed).length}</div>
+            <div className="stat-value">{currentTasks.filter(t => t.completed).length}</div>
           </div>
           <div className="stat-card">
             <h3>En retard</h3>
             <div className="stat-value">
-              {tasks.filter(t => !t.completed && t.dueDate && new Date(t.dueDate) < new Date()).length}
+              {currentTasks.filter(t => !t.completed && t.dueDate && new Date(t.dueDate) < new Date()).length}
             </div>
           </div>
         </div>
@@ -115,7 +180,7 @@ const TasksPage = () => {
         {/* Tasks List */}
         <section className="tasks-list">
           <AnimatePresence>
-            {tasks.map(task => (
+            {currentTasks.map(task => (
               <motion.div
                 key={task.id}
                 className={`task-card ${task.completed ? 'completed' : ''}`}
@@ -197,7 +262,7 @@ const TasksPage = () => {
                 &times;
               </button>
               
-              <h2>Ajouter une nouvelle tâche</h2>
+              <h2>Ajouter une nouvelle tâche (Phase {activePhase})</h2>
               
               <form onSubmit={addTask}>
                 <div className="form-group">
@@ -261,6 +326,75 @@ const TasksPage = () => {
 
       {/* CSS Styles */}
       <style jsx>{`
+     
+
+        /* Phases Navigation */
+        .phases-section {
+          margin-bottom: 1.5rem;
+        }
+
+        .phases-tabs {
+          display: flex;
+          gap: 0.5rem;
+          overflow-x: auto;
+          padding-bottom: 0.5rem;
+        }
+
+        .phase-tab {
+          padding: 0.75rem 1.5rem;
+          background: #f3f4f6;
+          border: none;
+          border-radius: 6px;
+          font-weight: 500;
+          cursor: pointer;
+          white-space: nowrap;
+          transition: all 0.3s;
+        }
+
+        .phase-tab.active {
+          background: #e43e32;
+          color: white;
+        }
+
+        /* Recommended Tasks */
+        .recommended-tasks {
+          margin-bottom: 2rem;
+        }
+
+        .recommended-card {
+          background: #f0fdf4;
+          border-radius: 8px;
+          padding: 1.5rem;
+          border-left: 4px solid #10b981;
+        }
+
+        .recommended-card h2 {
+          margin-top: 0;
+          color: #111827;
+          font-size: 1.2rem;
+          margin-bottom: 1rem;
+        }
+
+        .recommended-card ul {
+          margin: 0;
+          padding-left: 1.5rem;
+        }
+
+        .recommended-card li {
+          margin-bottom: 0.5rem;
+          color: #374151;
+        }
+
+        @media (max-width: 768px) {
+          .phases-tabs {
+            flex-wrap: nowrap;
+          }
+          
+          .phase-tab {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+          }
+        }
         .tasks-container {
           display: flex;
           min-height: 100vh;
